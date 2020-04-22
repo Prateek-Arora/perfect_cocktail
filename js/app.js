@@ -8,10 +8,19 @@ const ui = new UI(),
 // Create Event Listeners.
 function eventListeners(){
 
+    // Document Loaded.
+    document.addEventListener('DOMContentLoaded', documentReady);
+
     // Add event listener for form submission.
     const searchForm = document.querySelector('#search-form');
     if(searchForm){
         searchForm.addEventListener('submit', getCocktails);
+    }
+
+    // The results div listeners.
+    const resultsDiv = document.querySelector('#results');
+    if(resultsDiv){
+        resultsDiv.addEventListener('click', resultsDelegation);
     }
     
 }
@@ -42,6 +51,13 @@ function getCocktails(e){
             case 'ingredient':
                 serverResponse = cocktail.getDrinksByIngredient( search );
                 break;
+            case 'category':
+                serverResponse = cocktail.getDrinksByCategory( search );
+                break;
+            case 'alcohol':
+                serverResponse = cocktail.getDrinksByAlcohol( search );
+                break;
+
         }
 
         ui.clearResults();
@@ -64,5 +80,28 @@ function getCocktails(e){
                     }
                 }
             })
+    }
+}
+
+// Delegation from results area.
+function resultsDelegation(e) {
+    e.preventDefault();
+
+    if(e.target.classList.contains('get-recipe')){
+        cocktail.getSingleRecipe(e.target.dataset.id)
+            .then(recipe => {
+                // Display a single recipe.
+                ui.displaySingleRecipe(recipe.recipe.drinks[0]);
+            })
+    }
+}
+
+
+// Load content.
+function documentReady() {
+    // Select the search category.
+    const searchCategory = document.querySelector('.search-category');
+    if(searchCategory){
+        ui.displayCategories();
     }
 }

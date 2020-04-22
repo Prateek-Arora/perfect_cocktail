@@ -1,5 +1,27 @@
 class UI{
 
+    // Display categories.
+    displayCategories(){
+        const categoryList = cocktail.getCategories()
+                .then(categories => {
+                    const catList = categories.categories.drinks;
+
+                    // Append the first option without value.
+                    const option = document.createElement('option');
+                    option.textContent = '-- Select --';
+                    option.value = '';
+                    document.querySelector('#search').appendChild(option);
+
+                    // Add the categories into search bar.
+                    catList.forEach(category => {
+                        const option = document.createElement('option');
+                        option.textContent = category.strCategory;
+                        option.value = category.strCategory.split(' ').join('_');
+                        document.querySelector('#search').appendChild(option);
+                    })
+                })
+    }
+
     // Display the drinks without ingredients.
     displayDrinks(drinks){
         // Show the results.
@@ -16,7 +38,7 @@ class UI{
                         <img class="card-img-top" src="${drink.strDrinkThumb}" alt="${drink.strDrink}">
                         <div class="card-body">
                             <h2 class="card-title text-center">${drink.strDrink}</h2>
-                            <a class="btn btn-success" href="#" data-toggle="modal" data-id="${drink.idDrink}">Get Recipe</a>
+                            <a data-target="#recipe" class="btn btn-success get-recipe" href="#" data-toggle="modal" data-id="${drink.idDrink}">Get Recipe</a>
                         </div>
                     </div>
                 </div>
@@ -95,6 +117,24 @@ class UI{
 
         return ingredientsTemplate;
     }
+
+
+    // Displays a single recipe into a modal.
+    displaySingleRecipe(recipe) {
+        // Get Variables.
+        const modalTitle = document.querySelector(".modal-title"),
+                modalDescription = document.querySelector(".modal-body .description-text"),
+                modalIngredients = document.querySelector(".modal-body .ingredient-list .list-group");
+
+        // Set the values.
+        modalTitle.innerHTML = recipe.strDrink;
+        modalDescription.innerHTML = recipe.strInstructions;
+
+        // Display the ingredients.
+        let ingredientsList = this.displayIngredients(recipe);
+        modalIngredients.innerHTML = ingredientsList;
+    }
+
 
 
     // Displays a message.
