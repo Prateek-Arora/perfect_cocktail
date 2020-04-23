@@ -1,6 +1,7 @@
 // Instantiate Classes
 const ui = new UI(),
-      cocktail = new CocktailAPI();  
+      cocktail = new CocktailAPI(),
+      cocktailDB = new CocktailDB();
 
 
 
@@ -94,14 +95,76 @@ function resultsDelegation(e) {
                 ui.displaySingleRecipe(recipe.recipe.drinks[0]);
             })
     }
+
+    // When favorite button is clicked.
+    if(e.target.classList.contains('favorite-btn')){
+        if(e.target.classList.contains('is-favorite')){
+            // remove the favorite.
+            e.target.classList.remove('is-favorite');
+            e.target.textContent = '+';
+
+            // Remove from local Storage.
+            cocktailDB.removeFromDB(e.target.dataset.id);
+        }
+        else{
+            // add as a favorite.
+            e.target.classList.add('is-favorite');
+            e.target.textContent = '-';
+
+            // Get the info.
+            const cardBody = e.target.parentElement;
+
+            const drinkInfo = {
+                id: e.target.dataset.id,
+                name: cardBody.querySelector('.card-title').textContent,
+                image: cardBody.querySelector('.card-img-top').src
+            }
+
+            // Add into DB.
+            cocktailDB.saveIntoDB(drinkInfo);
+        }
+    }
 }
 
 
 // Load content.
 function documentReady() {
+
+    // Display on load, the favorites from storage.
+    ui.isFavorite();
+
     // Select the search category.
     const searchCategory = document.querySelector('.search-category');
     if(searchCategory){
         ui.displayCategories();
     }
+
+    // Loading favourites page.
+    const favoritesTable = document.querySelector('#favorites');
+    if(favoritesTable){
+        // Get favourites from local storage and display them.
+        const drinks = cocktailDB.getFromDB();
+        ui.displayFavorites(drinks);
+    }
+
+    // When recipe or remove button is clicked.
+    favoritesTable.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        if(e.target.classList.contains('get-recipe')){
+            cocktail.getSingleRecipe(e.target.dataset.id)
+                .then(recipe => {
+                    // Display a single recipe.
+                    ui.displaySingleRecipe(recipe.recipe.drinks[0]);
+                })
+        }
+
+        if(e.target.classList.contains('remove-recipe')){
+            // Remove from DOM.
+            ui.removeFavorite(e.target.parentElement.parentElement);
+
+            // Remove from local storage.
+            cocktailDB.removeFromDB(e.target.dataset.id);
+        }
+    })
 }

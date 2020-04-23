@@ -35,6 +35,9 @@ class UI{
             resultsDiv.innerHTML += `
                 <div class="col-md-4">
                     <div class="card my-3">
+                        <button type="button" data-id="${drink.idDrink}" class="favorite-btn btn btn-outline-info">
+                        +
+                        </button>
                         <img class="card-img-top" src="${drink.strDrinkThumb}" alt="${drink.strDrink}">
                         <div class="card-body">
                             <h2 class="card-title text-center">${drink.strDrink}</h2>
@@ -44,6 +47,7 @@ class UI{
                 </div>
             `;
         })
+        this.isFavorite();
     }
 
 
@@ -92,6 +96,7 @@ class UI{
        </div>
             `;
         });
+        this.isFavorite();
 
     }
 
@@ -135,6 +140,34 @@ class UI{
         modalIngredients.innerHTML = ingredientsList;
     }
 
+    // Display the favorites.
+    displayFavorites(favorites){
+        const favoritesTable = document.querySelector('#favorites tbody');
+
+        favorites.forEach(drink => {
+            const tr = document.createElement('tr');
+
+            tr.innerHTML += `
+                <td>
+                    <img src="${drink.image}" alt="${drink.name}" width="150">
+                </td>
+                <td>${drink.name}</td>
+                <td>
+                    <a href="#" data-toggle="modal" data-target="#recipe" data-id="${drink.id}" class="btn btn-success get-recipe">
+                        Recipe
+                    </a>
+                </td>
+                <td>
+                    <a href="#" data-id="${drink.id}" class="btn btn-danger remove-recipe">
+                        Remove
+                    </a>
+                </td>
+            `;
+
+            favoritesTable.appendChild(tr);
+        });
+    }
+
 
 
     // Displays a message.
@@ -165,5 +198,26 @@ class UI{
     clearResults() {
         const resultsDiv = document.querySelector('#results');
         resultsDiv.innerHTML = '';
+    }
+
+    // Removing favorite from DOM.
+    removeFavorite(element){
+        element.remove();
+    }
+
+    // Add a class when an item is favorite.
+    isFavorite(){
+        const drinks = cocktailDB.getFromDB();
+
+        drinks.forEach(drink => {
+            let {id} = drink;
+
+            // Select the favorites.
+            let favoriteDrink = document.querySelector(`[data-id="${id}"]`);
+            if(favoriteDrink){
+                favoriteDrink.classList.add('is-favorite');
+                favoriteDrink.textContent = '-';
+            }
+        })
     }
 }
